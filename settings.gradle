@@ -1,0 +1,8 @@
+rootProject.name = 'entity-persist'
+
+include 'lang-utils'
+include 'persist-api'
+include 'persist-jpa'
+include 'persist-spring'
+include 'entity-jackson'
+include 'example-classic-spring-app'

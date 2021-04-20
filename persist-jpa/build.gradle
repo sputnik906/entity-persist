@@ -1,0 +1,6 @@
+dependencies {
+  implementation project(":lang-utils")
+  implementation project(":persist-api")
+}
+
+

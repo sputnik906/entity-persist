@@ -1,0 +1,12 @@
+apply plugin: 'java-library' //need for api in dependencies
+
+dependencies {
+  implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+  implementation("org.springframework.boot:spring-boot-starter-web")
+
+  implementation project(":lang-utils")
+  implementation project(":entity-jackson")
+  api project(":persist-api")
+}
+
+

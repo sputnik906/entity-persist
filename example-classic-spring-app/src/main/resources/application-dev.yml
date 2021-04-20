@@ -1,0 +1,36 @@
+server:
+  port: 8090
+spring:
+  h2:
+    console:
+      enabled: true
+      path: /auth/h2
+  datasource:
+    url: jdbc:h2:file:./db/db-dev;INIT=DROP ALL OBJECTS #for batch tables
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  jpa:
+    #show-sql: true
+    generate-ddl: true
+    hibernate:
+      ddl-auto: create
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: DEBUG
+        cache: DEBUG
+        stat: DEBUG
+#logging:
+#  level:
+#    org:
+#      hibernate:
+#        SQL: DEBUG
+#        type:
+#          descriptor:
+#            sql:
+#              BasicBinder: TRACE
+#    properties:
+#      hibernate:
+#        format_sql: true

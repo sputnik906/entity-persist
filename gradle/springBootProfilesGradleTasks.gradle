@@ -1,0 +1,12 @@
+bootRun.jvmArgs += ["-Dfile.encoding=UTF-8"]
+
+['dev', 'stage','prod'].each { profile ->
+  task('bootRun-' + profile,type: JavaExec /*for access jvmArgs*/) {
+    group "application"
+    finalizedBy(bootRun)
+    doFirst {
+      bootRun.args += ["--spring.profiles.active=" + profile]
+      bootRun.jvmArgs += jvmArgs //params for debug
+    }
+  }
+}

@@ -1,0 +1,8 @@
+apply plugin: 'java-library' //need for api in dependencies
+
+dependencies {
+  api("javax.persistence:javax.persistence-api")
+  api("javax.validation:validation-api")
+}
+
+

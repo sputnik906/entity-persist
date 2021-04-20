@@ -1,0 +1,57 @@
+import org.springframework.boot.gradle.plugin.SpringBootPlugin
+
+plugins {
+  id 'org.springframework.boot' version '2.3.2.RELEASE' apply(false)
+  id 'net.researchgate.release' version '2.8.1' apply(false)
+}
+
+allprojects {
+  group = 'com.github.sputnik906'
+}
+
+subprojects {
+
+  repositories {
+    mavenCentral()
+  }
+
+  apply from: "$rootDir/gradle/java.gradle"
+  apply from: "$rootDir/gradle/publish-central.gradle"
+
+  apply plugin: 'io.spring.dependency-management'
+  apply plugin: 'net.researchgate.release' //run release task only through the terminal
+
+  release {
+    git {
+      requireBranch = 'main'
+    }
+  }
+
+  afterReleaseBuild.dependsOn uploadArchives
+
+
+  dependencyManagement {
+    imports {
+      mavenBom SpringBootPlugin.BOM_COORDINATES
+    }
+  }
+
+  dependencies {
+
+    compileOnly("org.projectlombok:lombok")
+    annotationProcessor("org.projectlombok:lombok")
+
+    testCompileOnly("org.projectlombok:lombok")
+    testAnnotationProcessor("org.projectlombok:lombok")
+
+    testImplementation("org.junit.jupiter:junit-jupiter-api")
+    testImplementation("org.junit.jupiter:junit-jupiter-params")
+    testRuntime("org.junit.jupiter:junit-jupiter-engine")
+
+  }
+
+  test {
+    systemProperty "file.encoding", "utf-8"
+    useJUnitPlatform()
+  }
+}
