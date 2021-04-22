@@ -1,4 +1,4 @@
-package com.github.sputnik906.example.classic.spring.app.repository;
+package com.github.sputnik906.example.classic.spring.app.dao;
 
 import com.github.sputnik906.example.classic.spring.app.domain.entity.Department;
 import org.springframework.data.jpa.repository.JpaRepository;

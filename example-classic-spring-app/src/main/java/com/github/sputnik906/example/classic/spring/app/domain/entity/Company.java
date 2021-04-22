@@ -1,15 +1,12 @@
 package com.github.sputnik906.example.classic.spring.app.domain.entity;
 
 import com.github.sputnik906.example.classic.spring.app.domain.common.IdentifiableLong;
-import com.github.sputnik906.example.classic.spring.app.domain.entity.Department.CreateDepartmentDTO;
-import com.github.sputnik906.example.classic.spring.app.domain.entity.Location.CreateLocationDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.beans.ConstructorProperties;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
@@ -25,7 +22,6 @@ import lombok.NonNull;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.ToString.Exclude;
-import lombok.Value;
 import lombok.experimental.FieldNameConstants;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -62,7 +58,7 @@ public class Company extends IdentifiableLong {
   @Exclude
   @NotNull
   @NonNull
-  @OneToMany(mappedBy = Department.Fields.company, cascade = CascadeType.ALL)
+  @OneToMany(mappedBy = Department.Fields.company, cascade = CascadeType.ALL, orphanRemoval = true)
   @Schema(title = "Подразделения")
   private Set<@Valid Department> departments;
 
@@ -86,24 +82,9 @@ public class Company extends IdentifiableLong {
     return departments.removeAll(removeDepartments);
   }
 
-  public static Company from(CreateCompanyDTO dto){
-    return new Company(
-      dto.label,
-      Location.from(dto.location),
-      dto.departments.stream().map(Department::from).collect(Collectors.toSet())
-    );
+  public void clearDepartments(){
+    departments.clear();
   }
 
-  @Value
-  public static class CreateCompanyDTO {
-    @NotBlank String label;
 
-    @NotNull CreateLocationDTO location;
-
-    @NotNull Set<@Valid CreateDepartmentDTO> departments;
-  }
-
-  public enum MutableProp{
-    label
-  }
 }

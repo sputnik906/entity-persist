@@ -24,12 +24,4 @@ public class Location extends IdentifiableLong {
   /** Наименование */
   @NotBlank @NonNull @Setter private String label;
 
-  public static Location from(CreateLocationDTO dto){
-    return new Location(dto.label);
-  }
-
-  @Value
-  public static class CreateLocationDTO {
-    @NotBlank String label;
-  }
 }

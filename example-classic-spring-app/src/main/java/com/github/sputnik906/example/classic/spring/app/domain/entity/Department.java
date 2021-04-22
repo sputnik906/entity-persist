@@ -16,7 +16,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import lombok.Value;
+import lombok.ToString.Exclude;
 import lombok.experimental.FieldNameConstants;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -33,7 +33,7 @@ public class Department extends IdentifiableLong {
   /** Номинальная загрузка */
   @NotNull @NonNull @Positive private Double nominalLoad;
 
-  // Не позволит прямой persist, только через Компанию
+  @Exclude
   @ManyToOne(fetch = FetchType.LAZY, optional = false)
   @Setter(AccessLevel.PROTECTED)
   private Company company;
@@ -43,14 +43,4 @@ public class Department extends IdentifiableLong {
     company.removeDepartments(Collections.singleton(this));
   }
 
-  public static Department from(CreateDepartmentDTO dto){
-    return new Department(dto.label,dto.nominalLoad);
-  }
-
-  @Value
-  public static class CreateDepartmentDTO {
-    @NotBlank String label;
-
-    @Positive Double nominalLoad;
-  }
 }
