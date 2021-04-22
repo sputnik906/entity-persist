@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class DepartmentService {
 
   @Getter
-  private final DepartmentRepository departmentRepository;
+  private final DepartmentRepository repository;
 
   private final EntityManager entityManager;
 
@@ -25,10 +25,10 @@ public class DepartmentService {
 
   @Autowired
   public DepartmentService(
-    DepartmentRepository departmentRepository,
+    DepartmentRepository repository,
     EntityManager entityManager
   ) {
-    this.departmentRepository = departmentRepository;
+    this.repository = repository;
     this.entityManager = entityManager;
     //check column type on Spring bean created stage
     this.nominalLoadColumn = entityManager.getMetamodel()

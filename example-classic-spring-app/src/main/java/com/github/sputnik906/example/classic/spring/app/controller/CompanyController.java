@@ -11,6 +11,10 @@ import com.github.sputnik906.example.classic.spring.app.dto.department.Departmen
 import com.github.sputnik906.example.classic.spring.app.dto.department.ViewDepartmentDTO;
 import com.github.sputnik906.example.classic.spring.app.dao.CompanyService;
 import com.turkraft.springfilter.FilterParser;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.links.Link;
+import io.swagger.v3.oas.annotations.links.LinkParameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -33,19 +37,21 @@ public class CompanyController {
 
   public static final String PATH = "api/companies";
 
+  public static final String findByIdOperationId = "Company_findById";
+
   private final CompanyService service;
 
-  private final CompanyMapper companyMapper;
+  private final CompanyMapper mapper;
 
   private final DepartmentMapper departmentMapper;
 
   @Autowired
   public CompanyController(CompanyService service,
-    CompanyMapper companyMapper,
+    CompanyMapper mapper,
     DepartmentMapper departmentMapper
   ) {
     this.service = service;
-    this.companyMapper = companyMapper;
+    this.mapper = mapper;
     this.departmentMapper = departmentMapper;
   }
 
@@ -53,21 +59,21 @@ public class CompanyController {
   public ViewCompanyDTO create(
     @RequestBody @Valid CreateCompanyDTO dto
   ) {
-    Company company = service.getRepository().save(companyMapper.from(dto));
-    return companyMapper.from(company);
+    Company company = service.getRepository().save(mapper.from(dto));
+    return mapper.from(company);
   }
 
   @RequestMapping(value = "/batch", method = RequestMethod.POST, consumes = "application/json")
   public List<ViewCompanyDTO> createBatch(
     @RequestBody List<CreateCompanyDTO> companyDTOList
   ) {
-    List<Company> companies = service.getRepository().saveAll(companyMapper.fromDTO(companyDTOList));
-    return companyMapper.fromEntities(companies);
+    List<Company> companies = service.getRepository().saveAll(mapper.fromDTO(companyDTOList));
+    return mapper.fromEntities(companies);
   }
 
   @RequestMapping(method = RequestMethod.GET)
   public Page<ViewCompanyDTO> findAll(Pageable pageable){
-    return service.paged(pageable).map(companyMapper::from);
+    return service.paged(pageable).map(mapper::from);
   }
 
   @RequestMapping(method = RequestMethod.GET,params = "search")
@@ -78,21 +84,30 @@ public class CompanyController {
     return service.search(
       pageable,
       search!=null?FilterParser.parse(search.trim()):null
-    ).map(companyMapper::from);
+    ).map(mapper::from);
   }
 
+  @Operation(
+    operationId = CompanyController.findByIdOperationId,
+    responses = {
+      @ApiResponse(links = {
+        @Link(name = Fields.departments, operationId = DepartmentController.findAllByIdOperationId, parameters = {
+          @LinkParameter(name = "ids", expression = "$."+Fields.departments+"[*].id")
+        })
+      })
+    })
   @RequestMapping(value = "/{id}", method = RequestMethod.GET)
   public Optional<ViewCompanyDTO> findById(
     @PathVariable(value = "id") Long id
   ){
-    return service.getRepository().findById(id).map(companyMapper::from);
+    return service.getRepository().findById(id).map(mapper::from);
   }
 
   @RequestMapping(value = "/ids",method = RequestMethod.GET,params = "ids")
   public List<ViewCompanyDTO> findAllById(
     @RequestParam(value = "ids") Long[] ids
   ) {
-    return companyMapper.fromEntities(service.getRepository().findAllById(Arrays.asList(ids)));
+    return mapper.fromEntities(service.getRepository().findAllById(Arrays.asList(ids)));
   }
 
   @RequestMapping(value = "/{id}/"+ Fields.label, method = RequestMethod.GET)
@@ -120,7 +135,7 @@ public class CompanyController {
     @PathVariable(value = "id") Long id,
     @RequestBody Map<String, Object> patch
   ) {
-    return companyMapper.from(service.patch(id,patch));
+    return mapper.from(service.patch(id,patch));
   }
 
   @RequestMapping(method = RequestMethod.PATCH)
@@ -128,7 +143,7 @@ public class CompanyController {
     @RequestBody List<Map<String, Object>> patches
   ) {
     return service.patch(patches).stream()
-      .map(companyMapper::from)
+      .map(mapper::from)
       .collect(Collectors.toList());
   }
 
