@@ -18,7 +18,7 @@ import lombok.RequiredArgsConstructor;
 public class RestAssuredEntityApiClient {
 
   @NonNull
-  private final String baseEntityUrl;
+  private final String hostUrl;
 
   @NonNull
   private final String idFieldName;
@@ -26,12 +26,12 @@ public class RestAssuredEntityApiClient {
   @NonNull
   private final String versionFieldName;
 
-  public <R> R create(Object createEntityDTO, Class<R> resultClass){
+  public <R> R create(String path, Object createEntityDTO, Class<R> resultClass){
     return RestAssured.given()
       .contentType(ContentType.JSON)
       .body(createEntityDTO)
       .when()
-      .post(baseEntityUrl)
+      .post(hostUrl+"/"+path)
       .then()
       .body(idFieldName, notNullValue())
       .body(versionFieldName, equalTo(0))
@@ -42,11 +42,11 @@ public class RestAssuredEntityApiClient {
       .as(resultClass);
   }
 
-  public <R> R readProperty(String id,String property,TypeRef<R> typeRef){
+  public <R> R readProperty(String path,String id,String property,TypeRef<R> typeRef){
     return RestAssured.given()
       .contentType(ContentType.JSON)
       .when()
-      .get(baseEntityUrl+"/"+id+"/"+property)
+      .get(hostUrl+"/"+path+"/"+id+"/"+property)
       .then()
       .statusCode(200)
       .log()
@@ -55,12 +55,12 @@ public class RestAssuredEntityApiClient {
       .as(typeRef);
   }
 
-  public <R> R patch(String id, Map<String,Object> patch,Class<R> resultClass){
+  public <R> R patch(String path,String id, Map<String,Object> patch,Class<R> resultClass){
     return RestAssured.given()
       .contentType(ContentType.JSON)
       .when()
       .body(patch)
-      .patch(baseEntityUrl+"/"+id)
+      .patch(hostUrl+"/"+path+"/"+id)
       .then()
       .statusCode(200)
       .log()
@@ -69,11 +69,11 @@ public class RestAssuredEntityApiClient {
       .as(resultClass);
   }
 
-  public <R> R findById(String id,Class<R> resultClass){
+  public <R> R findById(String path,String id,Class<R> resultClass){
     return RestAssured.given()
       .contentType(ContentType.JSON)
       .when()
-      .get(baseEntityUrl+"/"+id)
+      .get(hostUrl+"/"+path+"/"+id)
       .then()
       .statusCode(200)
       .log()
@@ -82,12 +82,12 @@ public class RestAssuredEntityApiClient {
       .as(resultClass);
   }
 
-  public <R> List<R> findAllById(Collection<Serializable> ids, Class<R> resultClass){
+  public <R> List<R> findAllById(String path,Collection<Serializable> ids, Class<R> resultClass){
     return RestAssured.given()
       .contentType(ContentType.JSON)
       .param("ids",ids)
       .when()
-      .get(baseEntityUrl)
+      .get(hostUrl+"/"+path)
       .then()
       .statusCode(200)
       .log()
@@ -98,14 +98,14 @@ public class RestAssuredEntityApiClient {
       .getList(".", resultClass);
   }
 
-  public <R> List<R> findAllPaged(String search, Class<R> resultClass){
+  public <R> List<R> findAllPaged(String path,String search, Class<R> resultClass){
     RequestSpecification reqSpec = RestAssured.given()
       .contentType(ContentType.JSON);
     if (search!=null) reqSpec.param("search",search);
     return
       reqSpec
       .when()
-      .get(baseEntityUrl)
+      .get(hostUrl+"/"+path)
       .then()
       .statusCode(200)
       .log()
@@ -116,12 +116,12 @@ public class RestAssuredEntityApiClient {
       .getList("content", resultClass);
   }
 
-  public <R> R addToCollection(String id, String collectionName, List<?> createEntityDTO, TypeRef<R> typeRef){
+  public <R> R addToCollection(String path,String id, String collectionName, List<?> createEntityDTO, TypeRef<R> typeRef){
     return RestAssured.given()
       .contentType(ContentType.JSON)
       .when()
       .body(createEntityDTO)
-      .post(baseEntityUrl+"/"+id+"/"+collectionName+"/add")
+      .post(hostUrl+"/"+path+"/"+id+"/"+collectionName+"/add")
       .then()
       .body("size()", is(createEntityDTO.size()))
       .statusCode(200)
@@ -131,43 +131,43 @@ public class RestAssuredEntityApiClient {
       .as(typeRef);
   }
 
-  public void removeFromCollection(String id, String collectionName, List<?> ids){
+  public void removeFromCollection(String path,String id, String collectionName, List<?> ids){
     RestAssured.given()
       .contentType(ContentType.JSON)
       .when()
       .body(ids)
-      .delete(baseEntityUrl+"/"+id+"/"+collectionName+"/remove")
+      .delete(hostUrl+"/"+path+"/"+id+"/"+collectionName+"/remove")
       .then()
       .statusCode(200)
       .log()
       .all();
   }
 
-  public void clearCollection(String id, String collectionName){
+  public void clearCollection(String path,String id, String collectionName){
     RestAssured.given()
       .contentType(ContentType.JSON)
       .when()
-      .delete(baseEntityUrl+"/"+id+"/"+collectionName+"/clear")
+      .delete(hostUrl+"/"+path+"/"+id+"/"+collectionName+"/clear")
       .then()
       .statusCode(200)
       .log()
       .all();
   }
 
-  public void delete(String id){
+  public void delete(String path,String id){
     RestAssured.given()
       .when()
-      .delete(baseEntityUrl+"/"+id)
+      .delete(hostUrl+"/"+path+"/"+id)
       .then()
       .statusCode(200)
       .log()
       .all();
   }
 
-  public Long count(String search){
+  public Long count(String path,String search){
     return RestAssured.given()
       .when()
-      .get(baseEntityUrl+"/count")
+      .get(hostUrl+"/"+path+"/count")
       .then()
       .statusCode(200)
       .log()

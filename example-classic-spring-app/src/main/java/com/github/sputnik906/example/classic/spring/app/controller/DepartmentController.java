@@ -5,6 +5,7 @@ import com.github.sputnik906.example.classic.spring.app.domain.entity.Department
 import com.github.sputnik906.example.classic.spring.app.dto.department.DepartmentMapper;
 import com.github.sputnik906.example.classic.spring.app.dto.department.ViewDepartmentDTO;
 import com.turkraft.springfilter.FilterParser;
+import com.turkraft.springfilter.FilterSpecification;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.links.Link;
 import io.swagger.v3.oas.annotations.links.LinkParameter;
@@ -13,6 +14,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -26,6 +29,7 @@ public class DepartmentController {
   public static final String PATH = "api/departments";
 
   public static final String findAllByIdOperationId = "Department_findAllById";
+  public static final String searchOperationId = "Department_search";
 
   private final DepartmentService service;
 
@@ -62,6 +66,23 @@ public class DepartmentController {
     @PathVariable(value = "id") Long id
   ){
     return service.getRepository().findById(id).map(mapper::from);
+  }
+
+  @RequestMapping(method = RequestMethod.GET)
+  public Page<ViewDepartmentDTO> findAll(Pageable pageable){
+    return service.getRepository().findAll(pageable).map(mapper::from);
+  }
+
+  @Operation(operationId = DepartmentController.searchOperationId)
+  @RequestMapping(method = RequestMethod.GET,params = "search")
+  public Page<ViewDepartmentDTO> search(
+    @RequestParam(value = "search") String search,
+    Pageable pageable
+  ){
+    return service.getRepository().findAll(
+      new FilterSpecification<>(FilterParser.parse(search.trim())),
+      pageable
+    ).map(mapper::from);
   }
 
   @RequestMapping(value = "/sumNominalLoad",method = RequestMethod.GET)
